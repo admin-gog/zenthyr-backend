@@ -1,6 +1,7 @@
 import express from "express";
 import type { Request,Response } from "express";
 import {MongoClient} from "mongodb";
+import userRoutes from "./routes/userRoutes.js"
 import "dotenv/config";
 const app = express();
 
@@ -14,6 +15,8 @@ if (!uri) {
 }
 
 const client = new MongoClient(uri);
+
+app.use("api/user",userRoutes)
 
 client
   .connect()

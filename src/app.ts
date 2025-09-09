@@ -1,12 +1,26 @@
 import express from "express";
 import type { Request,Response } from "express";
+import {MongoClient} from "mongodb";
+import "dotenv/config";
 const app = express();
-const port = 8080;
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
 });
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+const uri = process.env.MONGO_URI;
+if (!uri) {
+  throw new Error("MONGO_URI is not defined in env");
+}
+
+const client = new MongoClient(uri);
+
+client
+  .connect()
+  .then(() => {
+    console.log("Connected to MongoDB");
+    app.listen(process.env.PORT, () =>
+      console.log(`Server running on port ${process.env.PORT}`)
+    );
+  })
+  .catch((err) => console.error("MongoDB Error:", err));

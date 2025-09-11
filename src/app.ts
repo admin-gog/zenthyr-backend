@@ -1,25 +1,20 @@
 import express from "express";
-import type { Request,Response } from "express";
-import {MongoClient} from "mongodb";
-import userRoutes from "./routes/userRoutes.js"
+import userRoutes from "./routes/user.routes.js"
 import "dotenv/config";
+import mongoose from "mongoose";
 const app = express();
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello World!");
-});
+app.use(express.json());
 
 const uri = process.env.MONGO_URI;
 if (!uri) {
   throw new Error("MONGO_URI is not defined in env");
 }
 
-const client = new MongoClient(uri);
+app.use("/api/auth",userRoutes)
 
-app.use("api/user",userRoutes)
-
-client
-  .connect()
+mongoose
+  .connect(uri)
   .then(() => {
     console.log("Connected to MongoDB");
     app.listen(process.env.PORT, () =>

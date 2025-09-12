@@ -16,8 +16,6 @@ export const getAccessToken = async (
   params.append("redirect_uri", redirectUri);
   params.append("grant_type", "authorization_code");
 
-  console.log(params.toString());
-
   const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },

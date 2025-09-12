@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { getAccessToken, userGoogleInfo } from "../services/token.service.js";
 import { User } from "../model/user.model.js";
+import jwt from "jsonwebtoken";
 
 
 export async function addRetreiveUserDetails(req: Request, res: Response) {
@@ -33,7 +34,16 @@ export async function addRetreiveUserDetails(req: Request, res: Response) {
       });
     }
 
-    res.status(200).json({ user });
+    const jwtPayload = {
+      id: user._id,
+      email: user.email,
+      picture: user.picture,
+    };
+    const jwtToken = jwt.sign(jwtPayload, process.env.JWT_SECRET!, {
+      expiresIn: "1H", // optional, can be adjusted
+    });
+
+    res.status(200).json({ user, token: jwtToken });
   } catch (err) {
     res.status(500).json(err);
   }

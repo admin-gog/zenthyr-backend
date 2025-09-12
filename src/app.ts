@@ -1,7 +1,8 @@
-import express from "express";
+import express, { type NextFunction, type Request, type Response } from "express";
 import userRoutes from "./routes/user.routes.js"
 import "dotenv/config";
 import mongoose from "mongoose";
+import { ApiError } from "./utils/ApiError.js";
 const app = express();
 
 app.use(express.json());
@@ -11,7 +12,26 @@ if (!uri) {
   throw new Error("MONGO_URI is not defined in env");
 }
 
-app.use("/api/auth",userRoutes)
+app.use("/api",userRoutes)
+
+app.use((err: any, req: Request, res: Response, next: NextFunction
+
+) => {
+
+  if (err instanceof ApiError) {
+    return res.status(err.statusCode).json({
+      statusCode:err.statusCode,
+      message: err.message,
+      errors: err.errors,
+    });
+  }
+
+  // fallback for unknown errors
+  return res.status(500).json({
+    statusCode: err.statusCode,
+    message: err.message || "Internal Server Error",
+  });
+});
 
 mongoose
   .connect(uri)

@@ -1,4 +1,5 @@
 import type { GoogleUser, TokenResponse } from "../constant/constant.js";
+import { ApiError } from "../utils/ApiError.js";
 
 export const getAccessToken = async (
   authCode: string,
@@ -24,7 +25,7 @@ export const getAccessToken = async (
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Failed to fetch token: ${response.status} - ${errorText}`);
+    throw new ApiError(response.status, errorText);
   }
 
   return response.json() as Promise<TokenResponse>;
@@ -40,9 +41,7 @@ export const userGoogleInfo = async (accessToken: string): Promise<GoogleUser> =
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(
-      `Failed to fetch User Google info: ${response.status} - ${errorText}`
-    );
+    throw new ApiError(response.status, errorText);
   }
   const data = await response.json();
 

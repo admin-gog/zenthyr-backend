@@ -2,6 +2,8 @@ import type { Request, Response } from "express";
 import { getAccessToken, userGoogleInfo } from "../services/token.service.js";
 import { User } from "../model/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
+import jwt from "jsonwebtoken"
+
 
 const generateAccessAndRefereshTokens = async (userId :string) => {
   try {
@@ -31,7 +33,7 @@ export async function addRetreiveUserDetails(req: Request, res: Response) {
     const { code } = req.body;
 
     if (!code) {
-      return res.status(400).json({ error: "Missing authorization code" });
+      throw new ApiError(400, "Missing authorization code");
     }
 
     // generate access token from auth-token
@@ -59,14 +61,59 @@ export async function addRetreiveUserDetails(req: Request, res: Response) {
     const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(user._id);
 
 
-    res.status(200).json(
-      {
-        user: user,
-        accessToken,
-        refreshToken,
+    res.status(200).json({
+      user: {
+        _id: user._id,
+        googleId: user.googleId,
+        email: user.email,
+        name: user.name,
+        picture: user.picture,
       },
-    );
-  } catch (err) {
-    res.status(500).json(err);
+      accessToken,
+      refreshToken,
+    });
+  } catch (err:any) {
+    throw new ApiError(err?.statusCode, err?.message);
   }
 }
+
+interface RefreshTokenPayload extends jwt.JwtPayload {
+  email: string;
+}
+
+export const refreshAccessToken = async (req : Request, res : Response) => {
+  const incomingRefreshToken = req.body.refreshToken;
+
+  if (!incomingRefreshToken) {
+    throw new ApiError(401, "unauthorized request");
+  }
+
+  try {
+    const decodedToken = jwt.verify(
+      incomingRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET!
+    ) as RefreshTokenPayload;
+
+    const user = await User.findOne({ email: decodedToken.email });
+
+
+    if (!user) {
+      throw new ApiError(401, "Invalid refresh token");
+    }
+
+    if (incomingRefreshToken !== user?.refreshToken) {
+      throw new ApiError(401, "Refresh token is expired or used");
+    }
+
+    const { accessToken, refreshToken } =
+      await generateAccessAndRefereshTokens(user._id);
+
+    return res
+      .status(200)
+      .json(
+          { accessToken, refreshToken: refreshToken },
+      );
+  } catch (error : any) {
+    throw new ApiError(401, error?.message || "Invalid refresh token");
+  }
+};

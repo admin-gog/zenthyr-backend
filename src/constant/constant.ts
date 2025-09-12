@@ -13,3 +13,9 @@ export interface GoogleUser {
   name: string;
   picture: string;
 }
+
+export interface UserTokenPayload {
+  _id: string;
+  email: string;
+  picture: string;
+}

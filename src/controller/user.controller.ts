@@ -1,8 +1,30 @@
 import type { Request, Response } from "express";
 import { getAccessToken, userGoogleInfo } from "../services/token.service.js";
 import { User } from "../model/user.model.js";
-import jwt from "jsonwebtoken";
+import { ApiError } from "../utils/ApiError.js";
 
+const generateAccessAndRefereshTokens = async (userId :string) => {
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false });
+
+    return { accessToken, refreshToken };
+  } catch (error) {
+    throw new ApiError(
+      500,
+      "Something went wrong while generating refresh and access token"
+    );
+  }
+};
 
 export async function addRetreiveUserDetails(req: Request, res: Response) {
   try {
@@ -34,16 +56,16 @@ export async function addRetreiveUserDetails(req: Request, res: Response) {
       });
     }
 
-    const jwtPayload = {
-      id: user._id,
-      email: user.email,
-      picture: user.picture,
-    };
-    const jwtToken = jwt.sign(jwtPayload, process.env.JWT_SECRET!, {
-      expiresIn: "1H", // optional, can be adjusted
-    });
+    const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(user._id);
 
-    res.status(200).json({ user, token: jwtToken });
+
+    res.status(200).json(
+      {
+        user: user,
+        accessToken,
+        refreshToken,
+      },
+    );
   } catch (err) {
     res.status(500).json(err);
   }

@@ -2,13 +2,47 @@ import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken"
 
 interface IUser extends Document {
-  _id:string;
+  _id: string;
   googleId: string;
   email: string;
   name: string;
   picture: string;
   refreshToken: string;
-  udi?:string;
+  udi?: string;
+  coins?: number;
+  diamonds?: number;
+  currentLevel?: number;
+  experiencePoints?: number;
+  elixir?: number;
+  goldEarned?: number;
+  diamondEarned?: number;
+
+  userStats?: {
+    matchPlayed: number;
+    matchWins: number;
+    matchLost: number;
+  };
+
+  heroesInventory: {
+    heroes: [
+      {
+        heroName: string;
+        type?: string;
+        level: number;
+      }
+    ];
+    count: number;
+  };
+
+  cannonInventory?: {
+    cannon: [
+      {
+        type?: string;
+        level: number;
+      }
+    ];
+    count: number;
+  }[];
   generateAccessToken(): string;
   generateRefreshToken(): string;
 }
@@ -21,6 +55,41 @@ const userSchema: Schema = new Schema<IUser>({
   udi: { type: String },
   refreshToken: {
     type: String,
+  },
+  coins: { type: Number, default: 0 },
+  diamonds: { type: Number, default: 0 },
+  currentLevel: { type: Number, default: 1 },
+  experiencePoints: { type: Number, default: 0 },
+  elixir: { type: Number, default: 0 },
+  goldEarned: { type: Number, default: 0 },
+  diamondEarned: { type: Number, default: 0 },
+  userStats: {
+    matchPlayed: { type: Number, default: 0 },
+    matchWins: { type: Number, default: 0 },
+    matchLost: { type: Number, default: 0 },
+  },
+  heroesInventory: {
+    // heroTypes: { type: String }
+    heroes: [
+      {
+        heroName: { type: String, required: true },
+        type: { type: String },
+        level: { type: Number, default: 1 },
+        isActive: { type: Boolean },
+      },
+    ],
+    count: { type: Number },
+    // heroTypes array with objects containing - heroName or its types & its levels
+  },
+  cannonInventory: {
+    cannon: [
+      {
+        type: { type: String },
+        level: { type: Number, default: 1 },
+        isActive: { type: Boolean },
+      },
+    ],
+    count: { type: Number },
   },
 });
 

@@ -8,15 +8,17 @@ interface IUser extends Document {
   name: string;
   picture: string;
   refreshToken: string;
+  udi?:string;
   generateAccessToken(): string;
   generateRefreshToken(): string;
 }
 
 const userSchema: Schema = new Schema<IUser>({
-  googleId: { type: String, required: true, unique: true },
-  email: { type: String, required: true },
-  name: { type: String, required: true },
+  googleId: { type: String },
+  email: { type: String, unique: true },
+  name: { type: String },
   picture: { type: String },
+  udi: { type: String },
   refreshToken: {
     type: String,
   },
@@ -26,8 +28,7 @@ const userSchema: Schema = new Schema<IUser>({
 userSchema.methods.generateAccessToken = function (this: IUser): string {
   const payload = {
     _id: this._id,
-    email: this.email,
-    picture: this.picture,
+    udi: this.udi,
   };
   
   const secret = process.env.ACCESS_TOKEN_SECRET;
@@ -50,7 +51,8 @@ userSchema.methods.generateAccessToken = function (this: IUser): string {
 
 userSchema.methods.generateRefreshToken = function (this: IUser): string {
   const payload = {
-    email: this.email,
+    // email: this.email,
+    _id: this._id,
   };
   
   const secret = process.env.REFRESH_TOKEN_SECRET;

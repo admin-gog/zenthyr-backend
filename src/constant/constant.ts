@@ -1,4 +1,4 @@
-export interface TokenResponse {
+export interface GoogleTokenResponse {
   access_token: string;
   expires_in: number;
   refresh_token?: string;
@@ -7,7 +7,7 @@ export interface TokenResponse {
   id_token?: string;
 }
 
-export interface GoogleUser {
+export interface UserGoogleData {
   id: string;
   email: string;
   name: string;

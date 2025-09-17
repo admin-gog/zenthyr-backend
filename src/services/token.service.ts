@@ -1,13 +1,37 @@
-import type { GoogleUser, TokenResponse } from "../constant/constant.js";
+import type { GoogleTokenResponse, UserGoogleData } from "../constant/constant.js";
+import { User } from "../model/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 
-export const getAccessToken = async (
+
+export const generateAccessAndRefereshTokens = async (userId :string) => {
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false });
+
+    return { accessToken, refreshToken };
+  } catch (error) {
+    throw new ApiError(
+      500,
+      "Something went wrong while generating refresh and access token"
+    );
+  }
+};
+
+export const getGoogleAccessToken = async (
   authCode: string,
   clientId: string,
   clientSecret: string,
   redirectUri: string
-): Promise<TokenResponse
-> => {
+): Promise<GoogleTokenResponse> => {
   const url = "https://oauth2.googleapis.com/token";
 
   const params = new URLSearchParams();
@@ -28,10 +52,10 @@ export const getAccessToken = async (
     throw new ApiError(response.status, errorText);
   }
 
-  return response.json() as Promise<TokenResponse>;
+  return response.json() as Promise<GoogleTokenResponse>;
 };
 
-export const userGoogleInfo = async (accessToken: string): Promise<GoogleUser> => {
+export const userGoogleInfo = async (accessToken: string): Promise<UserGoogleData> => {
   const response = await fetch(
     "https://www.googleapis.com/oauth2/v2/userinfo",
     {

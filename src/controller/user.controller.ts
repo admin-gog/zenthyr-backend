@@ -7,7 +7,7 @@ import {
 import { User } from "../model/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import jwt from "jsonwebtoken"
-import { ApiResponse } from "../utils/ApiResponse.js";
+import { GenericApiResponse } from "../utils/GenericApiResponse.js";
 
 
 export async function addRetreiveUserDetails(req: Request, res: Response) {
@@ -88,7 +88,7 @@ export async function addRetreiveUserDetails(req: Request, res: Response) {
     );
 
     return res.status(200).json(
-      new ApiResponse(
+      new GenericApiResponse(
         200,
         {
           user: {
@@ -144,7 +144,7 @@ export const refreshAccessToken = async (req : Request, res : Response) => {
     return res
       .status(200)
       .json(
-         new ApiResponse(200,{ accessToken, refreshToken: refreshToken },"Tokens generated successfully")
+         new GenericApiResponse(200,{ accessToken, refreshToken: refreshToken },"Tokens generated successfully")
       );
   } catch (error : any) {
     throw new ApiError(401, error?.message || "Invalid refresh token");

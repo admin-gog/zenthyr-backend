@@ -1,3 +1,5 @@
+import jwt from "jsonwebtoken"
+
 export interface GoogleTokenResponse {
   access_token: string;
   expires_in: number;
@@ -14,8 +16,7 @@ export interface UserGoogleData {
   picture: string;
 }
 
-export interface UserTokenPayload {
+export interface AccessTokenPayload {
   _id: string;
-  email: string;
-  picture: string;
+  udi: string;
 }

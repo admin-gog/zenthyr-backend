@@ -1,4 +1,3 @@
-import jwt from "jsonwebtoken"
 
 export interface GoogleTokenResponse {
   access_token: string;
@@ -19,4 +18,9 @@ export interface UserGoogleData {
 export interface AccessTokenPayload {
   _id: string;
   udi: string;
+}
+
+export interface UserSelectedHero {
+  type:string;
+  level:number;
 }

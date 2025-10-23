@@ -1,0 +1,54 @@
+{
+  "heroes":[
+    {
+      "heroName":"Brightsteel",
+      "type":"swordsman",
+      "maxSlotsAvailable":4,
+      "levels":[
+        {
+          "level":1,
+          "damage":11,
+          "range":1
+        }
+      ]
+    },
+    {
+      "heroName": "Moonveil Ranger",
+      "type": "archer",
+      "maxSlotsAvailable": 2,
+      "levels": [
+        {
+          "level": 1,
+          "damage": 8,
+          "range": 2
+        }
+      ]
+    },
+     {
+      "heroName": "Light Bearer",
+      "type": "healer",
+      "maxSlotsAvailable": 1,
+      "levels": [
+        {
+          "level": 1,
+          "damage": 10,
+          "range": 2
+        }
+      ]
+    },
+    {
+      "heroName": "Mystic Sage",
+      "type": "mage",
+      "maxSlotsAvailable": 1,
+      "levels": [
+        {
+          "level": 1,
+          "damage": 11,
+          "range": 2
+        }
+      ]
+    }
+  ],
+  "start_game_elixir":2,
+  "start_game_gold":2
+}

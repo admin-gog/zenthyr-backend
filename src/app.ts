@@ -3,6 +3,8 @@ import userRoutes from "./routes/user.routes.js"
 import "dotenv/config";
 import mongoose from "mongoose";
 import { ApiError } from "./utils/ApiError.js";
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
 const app = express();
 
 app.use(express.json());
@@ -11,6 +13,22 @@ const uri = process.env.MONGO_URI;
 if (!uri) {
   throw new Error("MONGO_URI is not defined in env");
 }
+
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Zenthyr API's",
+      version: "1.0.0",
+      description: "API documentation for Zenthyr backend",
+    },
+  },
+  apis: ["./dist/routes/*.js"], // <-- path to files containing Swagger comments
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api/v1",userRoutes)
 

@@ -26,9 +26,9 @@ interface IUser extends Document {
   heroesInventory: {
     heroes: [
       {
-        heroName: string;
-        type?: string;
-        level: number;
+        heroId: string;
+        heroLevel: string;
+        isActive: number;
       }
     ];
     count: number;
@@ -72,9 +72,8 @@ const userSchema: Schema = new Schema<IUser>({
     // heroTypes: { type: String }
     heroes: [
       {
-        heroName: { type: String, required: true },
-        type: { type: String },
-        level: { type: Number, default: 1 },
+        heroId: { type: String, required: true },
+        heroLevel: { type: Number, default: 1 },
         isActive: { type: Boolean },
       },
     ],

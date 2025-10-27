@@ -24,3 +24,11 @@ export interface UserSelectedHero {
   type:string;
   level:number;
 }
+
+export interface ValidateHero {
+  heroId: string;
+  heroLevel: number;
+  slotType: string;
+}
+
+export type HeroesDeckProp = ValidateHero[];

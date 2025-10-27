@@ -131,6 +131,34 @@
       ]
     }
   ],
+  "default_heroes":[
+    {
+      "heroId": "Brightsteel",
+      "type": "Swordsman",
+      "maxSlotsAvailable": 4,
+      "cost": 0,
+      "levels": [
+        {
+          "level": 1,
+          "damage": 10,
+          "range": 1
+        }
+      ]
+    },
+    {
+      "heroId": "Moonveil Ranger",
+      "type": "Archer",
+      "maxSlotsAvailable": 2,
+      "cost": 0,
+      "levels": [
+        {
+          "level": 1,
+          "damage": 8,
+          "range": 2
+        }
+      ]
+    }
+  ],
   "start_game_elixir":2,
   "start_game_gold":2
 }

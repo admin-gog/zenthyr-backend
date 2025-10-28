@@ -43,7 +43,7 @@ export interface IUser extends Document {
   udi?: string;
   coins?: number;
   diamonds?: number;
-  currentLevel?: number;
+  currentLevel: number;
   experiencePoints?: number;
   elixir?: number;
   goldEarned?: number;

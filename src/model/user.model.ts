@@ -4,7 +4,7 @@ import type { IUser } from "../constant/constant.js";
 
 const userSchema: Schema = new Schema<IUser>({
   googleId: { type: String },
-  email: { type: String, unique: true },
+  email: { type: String },
   name: { type: String },
   picture: { type: String },
   udi: { type: String },

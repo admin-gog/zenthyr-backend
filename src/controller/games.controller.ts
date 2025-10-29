@@ -7,62 +7,48 @@ import {
   validateHeroSlots,
 } from "../services/hero.service.js";
 import type { HeroesDeckProp } from "../constant/constant.js";
-import { User } from "../model/user.model.js";
-import config from "../utils/LoadConfig.js";
-import { levelUp } from "../utils/LevelUp.js";
+import { findWinnerPlayerId, rewardGameWinner, saveGameRecord } from "../services/game.service.js";
+import { GamesRecord } from "../model/games.model.js";
+import { validateHeroObject, validatePlayer } from "../utils/ValidateData.js";
 
 export const gameFinish = async (req: Request, res: Response) => {
   try {
-    const { result } = req.body;
-    if(!result){
+    const { gameData } = req.body;
+
+    if (!gameData) {
       throw new ApiError(400, "Result are required to end game.");
     }
 
-    const { gameId, playerOne, playerTwo } = result;
+    const { gameId, playerOne, playerTwo, totalTime } = gameData;
 
     if (!gameId) {
       throw new ApiError(400, "GameId is required to end game.");
     }
+
+    const gameIdExist = await GamesRecord.findOne({
+      gameId: gameId,
+    });
+
+    if (gameIdExist) {
+      throw new ApiError(401, `Game with this gameId already exists`);
+    }
+
     if (!playerOne) {
-      throw new ApiError(400, "PlayerOne data is required to end game.");
+      throw new ApiError(400, "playerOne data is required to end game.");
     }
     if (!playerTwo) {
       throw new ApiError(400, "playerTwo data is required to end game.");
     }
-    
-    let winnerPlayerId = "";
-
-    if (playerOne.flag) {
-      winnerPlayerId = playerOne.id;
-    } else {
-      winnerPlayerId = playerTwo.id;
+    if (!totalTime) {
+      throw new ApiError(400, "totalTime data is required to end game.");
     }
+    validatePlayer(playerOne, "playerOne");
+    validatePlayer(playerTwo, "playerTwo");
 
-    const user = await User.findOne({ _id: winnerPlayerId });
+    const winnerPlayerId = findWinnerPlayerId(playerOne, playerTwo);
 
-    if (!user) {
-      throw new ApiError(400, "User not found !!");
-    }
-
-    const rewardBasedOnLevel =
-      config.game_finish_rewards.winning_rewards.levels.find(
-        (item: any) => item.level === user.currentLevel
-      );
-
-    await User.updateOne(
-      { _id: winnerPlayerId },
-      {
-        $inc: {
-          experiencePoints: rewardBasedOnLevel.xp,
-          goldEarned: rewardBasedOnLevel.gold_coins,
-        },
-      }
-    );
-
-    const updatedUser = await User.findById(winnerPlayerId);
-
-    // Now run levelUp() with latest XP
-    await levelUp(updatedUser, winnerPlayerId);
+    // Give winning user rewards & Store game details in GamesRecord Collection
+    await rewardGameWinner(gameData,winnerPlayerId);
 
     return res
       .status(200)
@@ -90,6 +76,7 @@ export const verifyHeroesDeck = (req: Request, res: Response) => {
     let heroesDeck: HeroesDeckProp = [];
 
     for (let hero of heroes) {
+      validateHeroObject(hero);
       // 1 - Check if user hve this hero and have same level as request
       checkHeroAvailable(hero, user);
 

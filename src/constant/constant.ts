@@ -1,3 +1,4 @@
+import type { Types } from "mongoose";
 
 export interface GoogleTokenResponse {
   access_token: string;
@@ -77,4 +78,29 @@ export interface IUser extends Document {
   }[];
   generateAccessToken(): string;
   generateRefreshToken(): string;
+}
+
+export interface IPlayerData {
+  playerId: Types.ObjectId;
+  totalScore: number;
+  flag:boolean;
+}
+
+export interface PlayerDataProp {
+  id: string;
+  totalScore: number;
+  flag: boolean;
+}
+
+export interface IWinnerRewards {
+  winnerId: Types.ObjectId;
+  xp: number;
+  gold: number;
+}
+
+export interface IGamesRecord extends Document {
+  gameId: string;
+  playersData: IPlayerData[];
+  winnerRewards: IWinnerRewards;
+  gamePlayedTime: String;
 }

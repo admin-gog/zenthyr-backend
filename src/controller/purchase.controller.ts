@@ -15,7 +15,6 @@ export const initiateInAppPurchase = async (req : Request ,res : Response) => {
   try {
     const { packId } = req.body;
     const user = (req as any).user;
-    console.log(user)
 
     if (!packId) {
       throw new ApiError(400, "Missing packId");

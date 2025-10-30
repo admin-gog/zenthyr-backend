@@ -7,9 +7,13 @@ import {
   validateHeroSlots,
 } from "../services/hero.service.js";
 import type { HeroesDeckProp } from "../constant/constant.js";
-import { findWinnerPlayerId, rewardGameWinner, saveGameRecord } from "../services/game.service.js";
+import {
+  findWinnerPlayerId,
+  rewardGameWinner,
+} from "../services/game.service.js";
 import { GamesRecord } from "../model/games.model.js";
-import { validateHeroObject, validatePlayer } from "../utils/ValidateData.js";
+import config from "../utils/LoadConfig.js";
+import { User } from "../model/user.model.js";
 
 export const gameFinish = async (req: Request, res: Response) => {
   try {
@@ -42,41 +46,60 @@ export const gameFinish = async (req: Request, res: Response) => {
     if (!totalTime) {
       throw new ApiError(400, "totalTime data is required to end game.");
     }
-    validatePlayer(playerOne, "playerOne");
-    validatePlayer(playerTwo, "playerTwo");
+
+    let isLevelUp = false;
 
     const winnerPlayerId = findWinnerPlayerId(playerOne, playerTwo);
 
+    if (!winnerPlayerId) {
+      throw new ApiError(400, "Unable to determine a winner");
+    }
+
     // Give winning user rewards & Store game details in GamesRecord Collection
-    await rewardGameWinner(gameData,winnerPlayerId);
+    const { isLevelUp: updatedIsLevelUp } = await rewardGameWinner(
+      gameData,
+      winnerPlayerId,
+      isLevelUp
+    );
 
     return res
       .status(200)
-      .json(new GenericApiResponse(200, {}, "Game Finished Successfully !!"));
+      .json(
+        new GenericApiResponse(
+          200,
+          { player: { id: winnerPlayerId, isLevelUp: updatedIsLevelUp } },
+          "Game Finished Successfully !!"
+        )
+      );
   } catch (err: any) {
     throw new ApiError(err?.statusCode || 500, err?.message || "Server Error");
   }
 };
 
-export const verifyHeroesDeck = (req: Request, res: Response) => {
+export const verifyHeroesDeck = async (req: Request, res: Response) => {
   try {
-    const { heroes } = req.body;
-    const user = (req as any).user;
-
+    const { heroes, userId } = req.body;
+    
     if (!heroes) {
       throw new ApiError(400, "Heroes Array is required");
     }
 
-    if (heroes.length !== 5) {
-      throw new ApiError(400, "5 Heroes are required");
+    if (!userId) {
+      throw new ApiError(400, "userId is required");
+    }
+    
+    const user = await User.findOne({ _id: userId }).select("-refreshToken");
+
+    const totalHeoresCount = config.deck_hero_count + config.npc_hero_count;
+
+    if (heroes.length !== totalHeoresCount) {
+      throw new ApiError(400, "4 Heroes are required");
     }
 
     // 4 Heroes + 1 NPC
-    // let availableSlot = 5;
     let heroesDeck: HeroesDeckProp = [];
 
     for (let hero of heroes) {
-      validateHeroObject(hero);
       // 1 - Check if user hve this hero and have same level as request
       checkHeroAvailable(hero, user);
 

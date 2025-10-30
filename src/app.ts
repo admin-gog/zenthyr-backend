@@ -13,7 +13,7 @@ if (!uri) {
   throw new Error("MONGO_URI is not defined in env");
 }
 
-app.use("/api/v1",userRoutes)
+app.use("/api/v1",userRoutes);
 app.use("/api/v1",gameRoutes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction

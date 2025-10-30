@@ -11,15 +11,22 @@ export const findWinnerPlayerId = (
 ) => {
   let winnerPlayerId = "";
 
-  if (playerOne.flag) {
-    winnerPlayerId = playerOne.id;
-  } else if (playerTwo.flag) {
-    winnerPlayerId = playerTwo.id;
-  } else {
-     throw new ApiError(401,"No Winner found")
-  }
+  // Check if any player left the game, then the other one wins
+  if(playerOne.gameLeft) return playerTwo.id;
+  if(playerTwo.gameLeft) return playerOne.id;
 
-  return winnerPlayerId;
+  // If game finishes
+
+  // Check which player capture the flag  
+  if (playerOne.isFlagBearer) return playerOne.id;
+  if (playerTwo.isFlagBearer) return playerTwo.id;
+
+  // If no flag is captured in game
+
+  // Check which player have highest score
+  if (playerOne.totalScore > playerTwo.totalScore) return playerOne.id;
+  if (playerTwo.totalScore > playerOne.totalScore) return playerTwo.id;
+
 };
 
 export const saveGameRecord = async (gameData:any, winnerPlayerId:string, rewardBasedOnLevel:any) => {
@@ -31,12 +38,14 @@ export const saveGameRecord = async (gameData:any, winnerPlayerId:string, reward
       {
         playerId: playerOne.id,
         totalScore: playerOne.totalScore,
-        flag: playerOne.flag,
+        isFlagBearer: playerOne.isFlagBearer,
+        gameLeft: playerOne.isFlagBearer,
       },
       {
         playerId: playerTwo.id,
         totalScore: playerTwo.totalScore,
-        flag: playerTwo.flag,
+        isFlagBearer: playerTwo.isFlagBearer,
+        gameLeft: playerTwo.isFlagBearer,
       },
     ],
     winnerRewards: {
@@ -48,7 +57,11 @@ export const saveGameRecord = async (gameData:any, winnerPlayerId:string, reward
   });
 };
 
-export const rewardGameWinner = async (gameData:any,winnerPlayerId:string) => {
+export const rewardGameWinner = async (
+  gameData: any,
+  winnerPlayerId: string,
+  isLevelUp:boolean
+) => {
   const user = await User.findOne({ _id: winnerPlayerId });
 
   if (!user) {
@@ -59,21 +72,19 @@ export const rewardGameWinner = async (gameData:any,winnerPlayerId:string) => {
     config.game_finish_rewards.winning_rewards.levels.find(
       (item: any) => item.level === user.currentLevel
     );
+  // increase user xp and gold 
+  user.experiencePoints += rewardBasedOnLevel.xp;
+  user.goldEarned += rewardBasedOnLevel.gold_coins;
 
-  await User.updateOne(
-    { _id: winnerPlayerId },
-    {
-      $inc: {
-        experiencePoints: rewardBasedOnLevel.xp,
-        goldEarned: rewardBasedOnLevel.gold_coins,
-      },
-    }
-  );
-
-  const updatedUser = await User.findById(winnerPlayerId);
 
   // Now run levelUp() with latest XP
-  await levelUp(updatedUser, winnerPlayerId);
+  const { isLevelUp: updatedIsLevelUp } = levelUp(
+    user,
+    winnerPlayerId,
+    isLevelUp
+  );
+  await user.save();
 
   await saveGameRecord(gameData, winnerPlayerId, rewardBasedOnLevel);
+  return { isLevelUp: updatedIsLevelUp };
 };

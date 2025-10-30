@@ -83,13 +83,15 @@ export interface IUser extends Document {
 export interface IPlayerData {
   playerId: Types.ObjectId;
   totalScore: number;
-  flag:boolean;
+  isFlagBearer: boolean;
+  gameLeft: boolean;
 }
 
 export interface PlayerDataProp {
   id: string;
   totalScore: number;
-  flag: boolean;
+  isFlagBearer: boolean;
+  gameLeft:boolean;
 }
 
 export interface IWinnerRewards {

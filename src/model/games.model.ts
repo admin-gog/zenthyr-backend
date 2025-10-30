@@ -8,7 +8,8 @@ const gamesRecord: Schema = new Schema<IGamesRecord>({
     {
       playerId: { type: Schema.Types.ObjectId, ref: "User", required: true },
       totalScore: { type: Number, required: true },
-      flag: { type: Boolean, required: true },
+      isFlagBearer: { type: Boolean, required: true },
+      gameLeft:{ type: Boolean, required: true }
     },
   ],
   winnerRewards: {

@@ -218,5 +218,7 @@
     }
   ],
   "start_game_elixir":2,
-  "start_game_gold":2
+  "start_game_gold":2,
+  "deck_hero_count":3,
+  "npc_hero_count":1
 }

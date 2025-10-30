@@ -19,6 +19,16 @@ app.use("/api/v1",gameRoutes);
 app.use((err: any, req: Request, res: Response, next: NextFunction
 
 ) => {
+  console.error(JSON.stringify({
+    resquest:{
+      method: req.method,
+      url: req.originalUrl,
+      params: req.params,
+      query: req.query,
+      body: req.body,
+    },
+    statusCode: err.statusCode || 500,
+  },null,2),{error:err});
 
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({

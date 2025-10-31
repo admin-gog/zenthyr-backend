@@ -1,55 +1,10 @@
 import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken"
-
-interface IUser extends Document {
-  _id: string;
-  googleId: string;
-  email: string;
-  name: string;
-  picture: string;
-  refreshToken: string;
-  udi?: string;
-  coins?: number;
-  diamonds?: number;
-  currentLevel?: number;
-  experiencePoints?: number;
-  elixir?: number;
-  goldEarned?: number;
-  diamondEarned?: number;
-
-  userStats?: {
-    matchPlayed: number;
-    matchWins: number;
-    matchLost: number;
-  };
-
-  heroesInventory: {
-    heroes: [
-      {
-        heroName: string;
-        type?: string;
-        level: number;
-      }
-    ];
-    count: number;
-  };
-
-  cannonInventory?: {
-    cannon: [
-      {
-        type?: string;
-        level: number;
-      }
-    ];
-    count: number;
-  }[];
-  generateAccessToken(): string;
-  generateRefreshToken(): string;
-}
+import type { IUser } from "../constant/constant.js";
 
 const userSchema: Schema = new Schema<IUser>({
   googleId: { type: String },
-  email: { type: String, unique: true },
+  email: { type: String },
   name: { type: String },
   picture: { type: String },
   udi: { type: String },
@@ -72,9 +27,8 @@ const userSchema: Schema = new Schema<IUser>({
     // heroTypes: { type: String }
     heroes: [
       {
-        heroName: { type: String, required: true },
-        type: { type: String },
-        level: { type: Number, default: 1 },
+        heroId: { type: String, required: true },
+        heroLevel: { type: Number, default: 1 },
         isActive: { type: Boolean },
       },
     ],

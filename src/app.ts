@@ -1,5 +1,6 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import userRoutes from "./routes/user.routes.js"
+import gameRoutes from "./routes/game.routes.js"
 import "dotenv/config";
 import mongoose from "mongoose";
 import { ApiError } from "./utils/ApiError.js";
@@ -30,11 +31,22 @@ const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use("/api/v1",userRoutes)
+app.use("/api/v1",userRoutes);
+app.use("/api/v1",gameRoutes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction
 
 ) => {
+  console.error(JSON.stringify({
+    resquest:{
+      method: req.method,
+      url: req.originalUrl,
+      params: req.params,
+      query: req.query,
+      body: req.body,
+    },
+    statusCode: err.statusCode || 500,
+  },null,2),{error:err});
 
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({

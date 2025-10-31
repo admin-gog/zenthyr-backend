@@ -8,6 +8,8 @@ import { User } from "../model/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import jwt from "jsonwebtoken"
 import { GenericApiResponse } from "../utils/GenericApiResponse.js";
+import config from "../utils/LoadConfig.js";
+import { createUserWithUid } from "../services/user.service.js";
 
 
 export async function addRetreiveUserDetails(req: Request, res: Response) {
@@ -65,6 +67,21 @@ export async function addRetreiveUserDetails(req: Request, res: Response) {
               email: googleUser.email,
               name: googleUser.name,
               picture: googleUser.picture,
+              heroesInventory: {
+                heroes: [
+                  {
+                    heroId: config.default_heroes[0].heroId,
+                    heroLevel: 1,
+                    isActive: true,
+                  },
+                  {
+                    heroId: config.default_heroes[1].heroId,
+                    heroLevel: 1,
+                    isActive: true,
+                  },
+                ],
+                count: config.default_heroes.length,
+              },
             });
           }
         }
@@ -72,14 +89,14 @@ export async function addRetreiveUserDetails(req: Request, res: Response) {
         // Google API failed → fallback: create/find user using UID only
         user = await User.findOne({ udi });
         if (!user) {
-          user = await User.create({ udi });
+         user = await createUserWithUid(udi);
         }
       }
     } else {
       // create/find user with just udi
       user = await User.findOne({ udi });
       if (!user) {
-        user = await User.create({ udi });
+        user = await createUserWithUid(udi);
       }
     }
 

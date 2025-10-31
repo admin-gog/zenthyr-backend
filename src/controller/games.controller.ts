@@ -34,7 +34,7 @@ export const gameFinish = async (req: Request, res: Response) => {
     });
 
     if (gameIdExist) {
-      throw new ApiError(401, `Game with this gameId already exists`);
+      throw new ApiError(400, `Game with this gameId already exists`);
     }
 
     if (!playerOne) {

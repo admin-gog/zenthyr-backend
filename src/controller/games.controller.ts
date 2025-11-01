@@ -14,6 +14,7 @@ import {
 import { GamesRecord } from "../model/games.model.js";
 import config from "../utils/LoadConfig.js";
 import { User } from "../model/user.model.js";
+import { updateUserGameStats } from "../services/gameStats.service.js";
 
 export const gameFinish = async (req: Request, res: Response) => {
   try {
@@ -62,6 +63,9 @@ export const gameFinish = async (req: Request, res: Response) => {
       isLevelUp
     );
 
+    await updateUserGameStats(playerOne, winnerPlayerId, gameId);
+    await updateUserGameStats(playerTwo, winnerPlayerId, gameId);
+
     return res
       .status(200)
       .json(
@@ -79,7 +83,7 @@ export const gameFinish = async (req: Request, res: Response) => {
 export const verifyHeroesDeck = async (req: Request, res: Response) => {
   try {
     const { heroes, userId } = req.body;
-    
+
     if (!heroes) {
       throw new ApiError(400, "Heroes Array is required");
     }
@@ -87,7 +91,7 @@ export const verifyHeroesDeck = async (req: Request, res: Response) => {
     if (!userId) {
       throw new ApiError(400, "userId is required");
     }
-    
+
     const user = await User.findOne({ _id: userId }).select("-refreshToken");
 
     const totalHeoresCount = config.deck_hero_count + config.npc_hero_count;

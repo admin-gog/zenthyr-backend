@@ -106,3 +106,14 @@ export interface IGamesRecord extends Document {
   winnerRewards: IWinnerRewards;
   gamePlayedTime: String;
 }
+
+export interface IUserGameStats extends Document {
+  userId: Types.ObjectId;
+  totalGamesPlayed: number;
+  totalGamesWins: number;
+  totalCoinsEarned: number;
+  totalCoinsSpent: number;
+  totalDiamondEarned: number;
+  totalDiamondSpent: number;
+  totalInAppPurchase: number;
+}

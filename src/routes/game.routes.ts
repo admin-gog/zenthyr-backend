@@ -3,6 +3,8 @@ import {
   gameFinish,
   verifyHeroesDeck,
 } from "../controller/games.controller.js";
+import { fetchUserGameStats } from "../controller/gameStats.controller.js";
+import { verifyToken } from "../middleware/verify.middleware.js";
 
 const router = Router();
 
@@ -198,5 +200,6 @@ const router = Router();
 
 router.post("/game/verify-deck", verifyHeroesDeck);
 router.post("/game/finish", gameFinish);
+router.get("/game/user-stats",verifyToken,fetchUserGameStats)
 
 export default router;

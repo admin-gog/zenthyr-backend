@@ -10,6 +10,7 @@ import jwt from "jsonwebtoken"
 import { GenericApiResponse } from "../utils/GenericApiResponse.js";
 import config from "../utils/LoadConfig.js";
 import { createUserWithUid } from "../services/user.service.js";
+import { UserGameStats } from "../model/userGameStats.model.js";
 
 
 export async function addRetreiveUserDetails(req: Request, res: Response) {
@@ -83,6 +84,10 @@ export async function addRetreiveUserDetails(req: Request, res: Response) {
                 count: config.default_heroes.length,
               },
             });
+
+            await UserGameStats.create({
+                userId : user._id
+            })
           }
         }
       } else {

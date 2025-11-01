@@ -1,8 +1,9 @@
 import { User } from "../model/user.model.js"
+import { UserGameStats } from "../model/userGameStats.model.js";
 import config from "../utils/LoadConfig.js";
 
 export const createUserWithUid = async (udi:string) => {
-  return await User.create({
+  const user =  await User.create({
     udi,
     heroesInventory: {
       heroes: [
@@ -20,4 +21,10 @@ export const createUserWithUid = async (udi:string) => {
       count: config.default_heroes.length,
     },
   });
+
+  await UserGameStats.create({
+    userId : user._id
+  })
+  
+  return user
 }
